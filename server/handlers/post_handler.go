@@ -1,7 +1,17 @@
 package handlers
 
 import (
+	"echo-demo-project/models"
+	"echo-demo-project/repositories"
+	"echo-demo-project/requests"
+	"echo-demo-project/responses"
 	s "echo-demo-project/server"
+	"echo-demo-project/services/token"
+	"net/http"
+	"strconv"
+
+	"github.com/golang-jwt/jwt"
+	"github.com/labstack/echo"
 )
 
 type PostHandlers struct {
@@ -24,31 +34,31 @@ func NewPostHandlers(server *s.Server) *PostHandlers {
 // @Failure 400 {object} responses.Error
 // @Security ApiKeyAuth
 // @Router /posts [post]
-// func (p *PostHandlers) CreatePost(c echo.Context) error {
-// 	createPostRequest := new(requests.CreatePostRequest)
+func (p *PostHandlers) CreatePost(c echo.Context) error {
+	createPostRequest := new(requests.CreatePostRequest)
 
-// 	if err := c.Bind(createPostRequest); err != nil {
-// 		return err
-// 	}
+	if err := c.Bind(createPostRequest); err != nil {
+		return err
+	}
 
-// 	if err := createPostRequest.Validate(); err != nil {
-// 		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
-// 	}
+	if err := createPostRequest.Validate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
+	}
 
-// 	user := c.Get("user").(*jwt.Token)
-// 	claims := user.Claims.(*token.JwtCustomClaims)
-// 	id := claims.ID
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(*token.JwtCustomClaims)
+	id := claims.ID
 
-// 	post := models.Post{
-// 		Title:   createPostRequest.Title,
-// 		Content: createPostRequest.Content,
-// 		UserID:  id,
-// 	}
-// 	postService := postservice.NewPostService(p.server.DB)
-// 	postService.Create(&post)
+	post := models.Post{
+		Title:   createPostRequest.Title,
+		Content: createPostRequest.Content,
+		UserID:  id,
+	}
+	postService := postservice.NewPostService(p.server.DB)
+	postService.Create(&post)
 
-// 	return responses.MessageResponse(c, http.StatusCreated, "Post successfully created")
-// }
+	return responses.MessageResponse(c, http.StatusCreated, "Post successfully created")
+}
 
 // DeletePost godoc
 // @Summary Delete post
@@ -60,23 +70,23 @@ func NewPostHandlers(server *s.Server) *PostHandlers {
 // @Failure 404 {object} responses.Error
 // @Security ApiKeyAuth
 // @Router /posts/{id} [delete]
-// func (p *PostHandlers) DeletePost(c echo.Context) error {
-// 	id, _ := strconv.Atoi(c.Param("id"))
+func (p *PostHandlers) DeletePost(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 
-// 	post := models.Post{}
+	post := models.Post{}
 
-// 	postRepository := repositories.NewPostRepository(p.server.DB)
-// 	postRepository.GetPost(&post, id)
+	postRepository := repositories.NewPostRepository(p.server.DB)
+	postRepository.GetPost(&post, id)
 
-// 	if post.ID == 0 {
-// 		return responses.ErrorResponse(c, http.StatusNotFound, "Post not found")
-// 	}
+	if post.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusNotFound, "Post not found")
+	}
 
-// 	postService := postservice.NewPostService(p.server.DB)
-// 	postService.Delete(&post)
+	postService := postservice.NewPostService(p.server.DB)
+	postService.Delete(&post)
 
-// 	return responses.MessageResponse(c, http.StatusNoContent, "Post deleted successfully")
-// }
+	return responses.MessageResponse(c, http.StatusNoContent, "Post deleted successfully")
+}
 
 // GetPosts godoc
 // @Summary Get posts
@@ -87,19 +97,19 @@ func NewPostHandlers(server *s.Server) *PostHandlers {
 // @Success 200 {array} responses.PostResponse
 // @Security ApiKeyAuth
 // @Router /posts [get]
-// func (p *PostHandlers) GetPosts(c echo.Context) error {
-// 	var posts []models.Post
+func (p *PostHandlers) GetPosts(c echo.Context) error {
+	var posts []models.Post
 
-// 	postRepository := repositories.NewPostRepository(p.server.DB)
-// 	postRepository.GetPosts(&posts)
+	postRepository := repositories.NewPostRepository(p.server.DB)
+	postRepository.GetPosts(&posts)
 
-// 	for i := 0; i < len(posts); i++ {
-// 		p.server.DB.Model(&posts[i]).Related(&posts[i].User)
-// 	}
+	for i := 0; i < len(posts); i++ {
+		p.server.DB.Model(&posts[i]).Related(&posts[i].User)
+	}
 
-// 	response := responses.NewPostResponse(posts)
-// 	return responses.Response(c, http.StatusOK, response)
-// }
+	response := responses.NewPostResponse(posts)
+	return responses.Response(c, http.StatusOK, response)
+}
 
 // UpdatePost godoc
 // @Summary Update post
@@ -114,30 +124,30 @@ func NewPostHandlers(server *s.Server) *PostHandlers {
 // @Failure 400 {object} responses.Error
 // @Failure 404 {object} responses.Error
 // @Security ApiKeyAuth
-// // @Router /posts/{id} [put]
-// func (p *PostHandlers) UpdatePost(c echo.Context) error {
-// 	updatePostRequest := new(requests.UpdatePostRequest)
-// 	id, _ := strconv.Atoi(c.Param("id"))
+// @Router /posts/{id} [put]
+func (p *PostHandlers) UpdatePost(c echo.Context) error {
+	updatePostRequest := new(requests.UpdatePostRequest)
+	id, _ := strconv.Atoi(c.Param("id"))
 
-// 	if err := c.Bind(updatePostRequest); err != nil {
-// 		return err
-// 	}
+	if err := c.Bind(updatePostRequest); err != nil {
+		return err
+	}
 
-// 	if err := updatePostRequest.Validate(); err != nil {
-// 		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
-// 	}
+	if err := updatePostRequest.Validate(); err != nil {
+		return responses.ErrorResponse(c, http.StatusBadRequest, "Required fields are empty")
+	}
 
-// 	post := models.Post{}
+	post := models.Post{}
 
-// 	postRepository := repositories.NewPostRepository(p.server.DB)
-// 	postRepository.GetPost(&post, id)
+	postRepository := repositories.NewPostRepository(p.server.DB)
+	postRepository.GetPost(&post, id)
 
-// 	if post.ID == 0 {
-// 		return responses.ErrorResponse(c, http.StatusNotFound, "Post not found")
-// 	}
+	if post.ID == 0 {
+		return responses.ErrorResponse(c, http.StatusNotFound, "Post not found")
+	}
 
-// 	postService := postservice.NewPostService(p.server.DB)
-// 	postService.Update(&post, updatePostRequest)
+	postService := postservice.NewPostService(p.server.DB)
+	postService.Update(&post, updatePostRequest)
 
-// 	return responses.MessageResponse(c, http.StatusOK, "Post successfully updated")
-// }
+	return responses.MessageResponse(c, http.StatusOK, "Post successfully updated")
+}

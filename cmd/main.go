@@ -3,6 +3,8 @@ package main
 import (
 	application "echo-demo-project"
 	"echo-demo-project/config"
+	"echo-demo-project/docs"
+	"fmt"
 )
 
 // @title Echo Demo App
@@ -21,7 +23,7 @@ import (
 func main() {
 	cfg := config.NewConfig()
 
-	//docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.ExposePort)
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.ExposePort)
 
 	application.Start(cfg)
 }

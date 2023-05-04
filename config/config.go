@@ -6,9 +6,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// 구조체로 Auth, DB, HTTP 설정
 type Config struct {
-	// Auth AuthConfig
-	// DB   DBConfig
+	Auth AuthConfig
+	DB   DBConfig
 	HTTP HTTPConfig
 }
 
@@ -19,8 +20,8 @@ func NewConfig() *Config {
 	}
 
 	return &Config{
-		// Auth: LoadAuthConfig(),
-		// DB:   LoadDBConfig(),
+		Auth: LoadAuthConfig(),
+		DB:   LoadDBConfig(),
 		HTTP: LoadHTTPConfig(),
 	}
 }
